@@ -415,6 +415,9 @@ public class Hive {
       metaStoreClient.close();
       metaStoreClient = null;
     }
+    if (syncMetaStoreClient != null) {
+      syncMetaStoreClient.close();
+    }
     if (owner != null) {
       owner = null;
     }
@@ -3187,7 +3190,7 @@ private void constructOneLBLocationMap(FileStatus fSta,
        *
        * I'll leave the below loop for now until a better approach is found.
        */
-    
+
     int counter = 1;
     if (!isRenameAllowed || isBlobStoragePath) {
       while (destFs.exists(destFilePath)) {
