@@ -299,6 +299,10 @@ public class ObjectStore implements RawStore, Configurable {
       boolean propsChanged = !propsFromConf.equals(prop);
 
       if (propsChanged) {
+        if (pmf != null){
+          // close the underlying connection pool to avoid leaks
+          pmf.close();
+        }
         pmf = null;
         prop = null;
       }
