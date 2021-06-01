@@ -553,12 +553,12 @@ public class ObjectStore implements RawStore, Configurable {
       Map.Entry<String, String> e = iter.next();
       String confVal = e.getValue();
       String varName = e.getKey();
-      Object prevVal = prop.setProperty(varName, conf.get(varName));
-      if (LOG.isDebugEnabled() && varName.contains("datanucleus") || varName.contains("jdo")) {
-        if (varName.equals(HiveConf.ConfVars.METASTORECONNECTURLKEY)) {
+      if (varName.contains("datanucleus") || varName.contains("jdo")) {
+        Object prevVal = prop.setProperty(varName, conf.get(varName));
+        if (LOG.isDebugEnabled() && varName.equals(HiveConf.ConfVars.METASTORECONNECTURLKEY)) {
           confVal = MetaStoreUtils.anonymizeConnectionURL(confVal);
         }
-        if (!varName.equals(HiveConf.ConfVars.METASTOREPWD.varname)) {
+        if (LOG.isDebugEnabled() && !varName.equals(HiveConf.ConfVars.METASTOREPWD.varname)) {
           LOG.debug("Overriding " + varName + " value " + prevVal
                   + " from  jpox.properties with " + confVal);
         }
