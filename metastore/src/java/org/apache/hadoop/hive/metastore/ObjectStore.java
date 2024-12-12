@@ -62,6 +62,7 @@ import javax.jdo.identity.IntIdentity;
 import javax.sql.DataSource;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -215,6 +216,7 @@ public class ObjectStore implements RawStore, Configurable {
   private static final String HOSTNAME;
   private static final String USER;
   private static final String JDO_PARAM = ":param";
+  private static com.google.common.base.Supplier<String> passwordProvider = null;
   static {
     Map<String, Class> map = new HashMap<String, Class>();
     map.put("table", MTable.class);
@@ -565,13 +567,19 @@ public class ObjectStore implements RawStore, Configurable {
       }
     }
     // Password may no longer be in the conf, use getPassword()
+    passwordProvider = passwordProvider != null ? passwordProvider : Suppliers.memoize(() -> {
+      try {
+        return ShimLoader.getHadoopShims().getPassword(conf, HiveConf.ConfVars.METASTOREPWD.varname);
+      } catch (IOException err) {
+        throw new RuntimeException("Error getting metastore password: " + err.getMessage(), err);
+      }
+    });
     try {
-      String passwd =
-          ShimLoader.getHadoopShims().getPassword(conf, HiveConf.ConfVars.METASTOREPWD.varname);
+      String passwd = passwordProvider.get();
       if (passwd != null && !passwd.isEmpty()) {
         prop.setProperty(HiveConf.ConfVars.METASTOREPWD.varname, passwd);
       }
-    } catch (IOException err) {
+    } catch (Exception err) {
       throw new RuntimeException("Error getting metastore password: " + err.getMessage(), err);
     }
 
