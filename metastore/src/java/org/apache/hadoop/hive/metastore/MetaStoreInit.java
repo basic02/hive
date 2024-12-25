@@ -51,7 +51,7 @@ public class MetaStoreInit {
    *         configuration
    * @throws MetaException
    */
-  static boolean updateConnectionURL(HiveConf originalConf, Configuration activeConf,
+  static boolean updateConnectionURL(Configuration originalConf, Configuration activeConf,
     String badUrl, MetaStoreInitData updateData)
       throws MetaException {
     String connectUrl = null;
@@ -89,7 +89,7 @@ public class MetaStoreInit {
   }
 
   // Multiple threads could try to initialize at the same time.
-  synchronized private static void initConnectionUrlHook(HiveConf hiveConf,
+  synchronized private static void initConnectionUrlHook(Configuration hiveConf,
     MetaStoreInitData updateData) throws ClassNotFoundException {
 
     String className =
@@ -107,6 +107,5 @@ public class MetaStoreInit {
           JavaUtils.getClassLoader());
       updateData.urlHook = (JDOConnectionURLHook) ReflectionUtils.newInstance(urlHookClass, null);
     }
-    return;
   }
 }

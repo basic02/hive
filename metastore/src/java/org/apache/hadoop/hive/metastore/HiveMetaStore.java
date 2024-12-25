@@ -669,23 +669,10 @@ public class HiveMetaStore extends ThriftHiveMetastore {
     }
 
     private static RawStore newRawStoreForConf(Configuration conf) throws MetaException {
-      HiveConf hiveConf = new HiveConf(conf, HiveConf.class);
-      String rawStoreClassName = hiveConf.getVar(HiveConf.ConfVars.METASTORE_RAW_STORE_IMPL);
+      Configuration newConf = new Configuration(conf);
+      String rawStoreClassName = HiveConf.getVar(newConf, HiveConf.ConfVars.METASTORE_RAW_STORE_IMPL);
       LOG.info(addPrefix("Opening raw store with implementation class:" + rawStoreClassName));
-      if (hiveConf.getBoolVar(ConfVars.METASTORE_FASTPATH)) {
-        LOG.info("Fastpath, skipping raw store proxy");
-        try {
-          RawStore rs =
-              ((Class<? extends RawStore>) MetaStoreUtils.getClass(rawStoreClassName))
-                  .newInstance();
-          rs.setConf(hiveConf);
-          return rs;
-        } catch (Exception e) {
-          LOG.error("Unable to instantiate raw store directly in fastpath mode", e);
-          throw new RuntimeException(e);
-        }
-      }
-      return RawStoreProxy.getProxy(hiveConf, conf, rawStoreClassName, threadLocalId.get());
+      return RawStoreProxy.getProxy(newConf, conf, rawStoreClassName, threadLocalId.get());
     }
 
     private void createDefaultDB_core(RawStore ms) throws MetaException, InvalidObjectException {

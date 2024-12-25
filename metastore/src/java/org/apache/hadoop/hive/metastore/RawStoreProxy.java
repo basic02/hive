@@ -41,11 +41,11 @@ public class RawStoreProxy implements InvocationHandler {
   private final RawStore base;
   private final MetaStoreInit.MetaStoreInitData metaStoreInitData =
     new MetaStoreInit.MetaStoreInitData();
-  private final HiveConf hiveConf;
+  private final Configuration hiveConf;
   private final Configuration conf; // thread local conf from HMS
   private final long socketTimeout;
 
-  protected RawStoreProxy(HiveConf hiveConf, Configuration conf,
+  protected RawStoreProxy(Configuration hiveConf, Configuration conf,
       Class<? extends RawStore> rawStoreClass, int id) throws MetaException {
     this.conf = conf;
     this.hiveConf = hiveConf;
@@ -58,7 +58,7 @@ public class RawStoreProxy implements InvocationHandler {
     this.base = ReflectionUtils.newInstance(rawStoreClass, conf);
   }
 
-  public static RawStore getProxy(HiveConf hiveConf, Configuration conf, String rawStoreClassName,
+  public static RawStore getProxy(Configuration hiveConf, Configuration conf, String rawStoreClassName,
       int id) throws MetaException {
 
     Class<? extends RawStore> baseClass = (Class<? extends RawStore>) MetaStoreUtils.getClass(
